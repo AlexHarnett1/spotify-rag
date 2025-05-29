@@ -1,0 +1,68 @@
+import os
+import openai
+import json
+from dotenv import load_dotenv
+from spotify_agent import tools, function_registry
+
+def call_agent_function(response):
+    # Extract the function name and arguments from the user query.
+    func_call = response.output[0]
+    function_name = func_call.name
+    arguments = json.loads(func_call.arguments)
+
+    # Get the correct function to call from the registry
+    func_to_call = function_registry.get(function_name)
+
+    if func_to_call:
+        result = func_to_call(**arguments)  # <- Dynamic function call
+    else:
+        result = None
+        print(f"Unknown function: {function_name}")
+
+    return result
+
+def prompt_open_ai(data, question):
+    context = f"This is the data retreived for the user's query: {data}"
+
+    prompt = f"""Based on the context of the user's data. {context}
+    Generate a response to their question which was: {question}
+    """
+
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are an expert in music."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=1
+    )
+
+    return response.choices[0].message.content
+
+
+def main():
+
+    while True:
+        user_input = input("Ask a question about your spotify data: ")
+        if(user_input == "exit"):
+            return
+        
+        response = openai.responses.create(
+        model="gpt-4.1",
+        input=[{"role": "user", "content": user_input}],
+        tools=tools
+        )
+        
+        data = call_agent_function(response)
+        if(data == None):
+            print("Couldn't find a function that matched your question.")
+            continue
+
+        
+        print("AI Assistant: ", prompt_open_ai(data, user_input))
+        print('-' * 75)
+
+
+
+
+main()

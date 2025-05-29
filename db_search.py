@@ -1,10 +1,6 @@
-import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import openai
-from dotenv import load_dotenv
 
-load_dotenv()
 
 DATABASE_NAME="spotify_data"
 
@@ -15,10 +11,6 @@ DB_CONFIG = {
     'dbname': DATABASE_NAME,
     'user': 'alexharnett'
 }
-
-# Configure OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
 
 def get_top_artists(limit=10):
     """Search for top artists in the database."""
@@ -52,5 +44,5 @@ def get_top_artists(limit=10):
         print(f"Error searching activities: {e}")
         raise e 
 
-print(get_top_artists(10))
+# print(get_top_artists(10))
         
