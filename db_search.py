@@ -18,7 +18,6 @@ DB_CONFIG = {
     'port': 5432,
     'user': DB_USER,
     'dbname': DB_NAME
-
 }
 
 def timestamp_valid(timestamp):
@@ -69,7 +68,7 @@ def get_top_artists(limit=10, timestamp = '2010-04-15T13:45:00Z'):
         raise e 
     
 
-def get_top_tracks(limit=100, timestamp = '2010-04-15T13:45:00Z'):
+def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
     """Return the most played tracks."""
     try:
         conn = psycopg2.connect(**DB_CONFIG)
