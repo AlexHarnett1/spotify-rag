@@ -1,19 +1,24 @@
+from dotenv import load_dotenv
+import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 
-DATABASE_NAME="spotify_data"
-
-
 # Time start AND finish
 # To create recommendations, I could create vectorDB of "song - artist" 
+
+load_dotenv()
+
+DB_USER = os.getenv("DB_USER")
+DB_NAME = os.getenv("DB_NAME")
 
 # PostgreSQL connection settings
 DB_CONFIG = {
     'host': 'localhost',
     'port': 5432,
-    'dbname': DATABASE_NAME,
-    'user': 'alexharnett'
+    'user': DB_USER,
+    'dbname': DB_NAME
+
 }
 
 def timestamp_valid(timestamp):

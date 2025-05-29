@@ -1,10 +1,9 @@
-from db_search import get_top_artists, get_top_tracks, get_song_recommendations
+from db_search import get_top_artists, get_top_tracks
 
 # Function registry (map of function names to callables)
 function_registry = {
     "get_top_artists": get_top_artists,
-    "get_top_tracks": get_top_tracks,
-    "get_song_recommendations": get_song_recommendations
+    "get_top_tracks": get_top_tracks
 }
 
 tools = [
@@ -31,25 +30,6 @@ tools = [
     "type": "function",
     "name": "get_top_tracks",
     "description": "Get my top listened to tracks/songs. Today is May 30, 2025.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "limit": {
-                "type": "integer",
-                "description": "Number of tracks e.g. 25, 50"
-            },
-            "timestamp": {
-                "type": "string",
-                "description": "How long ago they'd like the data to go back. Return in timestamp form. Ex: 2010-04-15T13:45:00Z"
-            }
-        },
-        "additionalProperties": False
-    }
-},
-{
-    "type": "function",
-    "name": "get_song_recommendations",
-    "description": "Get song recommendataions based on my top listened to tracks/songs. Today is May 30, 2025.",
     "parameters": {
         "type": "object",
         "properties": {

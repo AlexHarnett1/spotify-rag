@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import json
 import psycopg2
 from psycopg2 import sql
@@ -8,14 +9,18 @@ from psycopg2 import sql
 # Folder containing JSON files
 INPUT_FOLDER = './streaming_history'
 
-DATABASE_NAME="spotify_data"
+load_dotenv()
+
+DB_USER = os.getenv("DB_USER")
+DB_NAME = os.getenv("DB_NAME")
 
 # PostgreSQL connection settings
 DB_CONFIG = {
     'host': 'localhost',
     'port': 5432,
-    'dbname': DATABASE_NAME,
-    'user': 'alexharnett'
+    'user': DB_USER,
+    'dbname': DB_NAME
+
 }
 
 TABLE_NAME = 'songs_played'
