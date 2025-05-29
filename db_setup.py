@@ -6,15 +6,16 @@ from psycopg2 import sql
 # --- CONFIGURATION ---
 
 # Folder containing JSON files
-INPUT_FOLDER = 'path/to/your/json/files'
+INPUT_FOLDER = './streaming_history'
+
+DATABASE_NAME="spotify_data"
 
 # PostgreSQL connection settings
 DB_CONFIG = {
     'host': 'localhost',
     'port': 5432,
-    'dbname': 'your_database_name',
-    'user': 'your_username',
-    'password': 'your_password'
+    'dbname': DATABASE_NAME,
+    'user': 'alexharnett'
 }
 
 TABLE_NAME = 'songs_played'
