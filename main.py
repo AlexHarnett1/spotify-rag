@@ -4,6 +4,11 @@ import json
 from dotenv import load_dotenv
 from spotify_agent import tools, function_registry
 
+load_dotenv()
+
+# Configure OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 def call_agent_function(response):
     # Extract the function name and arguments from the user query.
     func_call = response.output[0]
@@ -48,9 +53,9 @@ def main():
             return
         
         response = openai.responses.create(
-        model="gpt-4.1",
-        input=[{"role": "user", "content": user_input}],
-        tools=tools
+            model="gpt-4.1",
+            input=[{"role": "user", "content": user_input}],
+            tools=tools
         )
         
         data = call_agent_function(response)
