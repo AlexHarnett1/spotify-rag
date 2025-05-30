@@ -10,8 +10,12 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def call_agent_function(response):
-    # Extract the function name and arguments from the user query.
+
     func_call = response.output[0]
+    if(func_call.type != 'function_call'):
+        return None
+    
+    # Extract the function name and arguments from the user query.
     function_name = func_call.name
     arguments = json.loads(func_call.arguments)
 
@@ -19,12 +23,10 @@ def call_agent_function(response):
     func_to_call = function_registry.get(function_name)
 
     if func_to_call:
-        result = func_to_call(**arguments)  # <- Dynamic function call
+        return func_to_call(**arguments)  # <- Dynamic function call
     else:
-        result = None
         print(f"Unknown function: {function_name}")
-
-    return result
+        return None
 
 def prompt_open_ai(data, question):
     context = f"This is the data retreived for the user's query: {data}"
