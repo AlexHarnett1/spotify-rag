@@ -3,6 +3,7 @@ import openai
 import json
 from dotenv import load_dotenv
 from spotify_agent import tools, function_registry
+from logger import vprint
 
 load_dotenv()
 
@@ -10,8 +11,9 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def call_agent_function(response):
-
+    
     func_call = response.output[0]
+    vprint("func_call: ", func_call)
     if(func_call.type != 'function_call'):
         return None
     
@@ -66,5 +68,5 @@ def ask_user_question():
             continue
 
         
-        print("AI Assistant: ", prompt_open_ai(data, user_input))
+        print("Botify: ", prompt_open_ai(data, user_input))
         print('-' * 75)

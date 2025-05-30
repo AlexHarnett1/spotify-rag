@@ -3,6 +3,7 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
+from logger import vprint
 
 # Time start AND finish
 # To create recommendations, I could create vectorDB of "song - artist" 
@@ -39,7 +40,7 @@ def get_top_artists(limit=10, timestamp = '2010-04-15T13:45:00Z'):
         if not timestamp_valid:
             timestamp = '2010-04-15T13:45:00Z'
 
-        print(timestamp)
+        vprint(f"Getting {limit} artists since {timestamp}")
         # Execute the query
         cursor.execute(
             """
@@ -78,7 +79,7 @@ def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
             timestamp = '2010-04-15T13:45:00Z'
 
 
-        print(timestamp)
+        vprint(f"Getting {limit} songs since {timestamp}")
 
         cursor.execute(
             """
