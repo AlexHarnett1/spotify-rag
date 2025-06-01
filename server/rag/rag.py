@@ -2,8 +2,8 @@ import os
 import openai
 import json
 from dotenv import load_dotenv
-from spotify_agent import tools, function_registry
-from logger import vprint
+from server.agents.spotify_agent import tools, function_registry
+from server.logger.logger import vprint
 
 load_dotenv()
 

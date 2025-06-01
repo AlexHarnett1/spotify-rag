@@ -3,7 +3,7 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
-from logger import vprint
+from server.logger.logger import vprint
 
 # Time start AND finish
 # To create recommendations, I could create vectorDB of "song - artist" 

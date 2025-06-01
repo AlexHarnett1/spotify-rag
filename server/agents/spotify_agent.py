@@ -1,4 +1,4 @@
-from db_search import get_top_artists, get_top_tracks
+from server.db.db_search import get_top_artists, get_top_tracks
 
 # Function registry (map of function names to callables)
 function_registry = {
