@@ -1,0 +1,1 @@
+export type ButtonClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => void

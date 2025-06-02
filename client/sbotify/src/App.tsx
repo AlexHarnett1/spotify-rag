@@ -1,11 +1,24 @@
-import { useState } from 'react'
+import type { ButtonClickHandler } from './types'
+import './stylesheets/App.css'
+
+import chatService from './services/chatService'
+import ChatWindow from './components/chatWindow'
+import PageHeader from './components/PageHeader'
 
 function App() {
 
+  const handleClick: ButtonClickHandler = (e) => {
+    e.preventDefault()
+    chatService.getPing().then(data => {
+      console.log(data)
+    })
+  }
+
   return (
-    <>
-        <p> Hello </p>
-    </>
+    <div>
+      <PageHeader />
+      <ChatWindow />
+    </div>
   )
 }
 

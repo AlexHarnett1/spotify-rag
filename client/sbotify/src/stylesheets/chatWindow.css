@@ -1,0 +1,171 @@
+.chat-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 2rem auto;
+  border: 1px solid #282828;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  background: #181818;
+  font-family: sans-serif;
+  color: #ffffff;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.chat-message {
+  margin-bottom: 10px;
+}
+
+.chat-message.user {
+  text-align: right;
+}
+
+.chat-message.bot {
+  text-align: left;
+}
+
+.bubble {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  background-color: #282828;
+  /* Bot bubble */
+  max-width: 80%;
+  word-wrap: break-word;
+  white-space: pre-line;
+  color: #ffffff;
+}
+
+.chat-message.user .bubble {
+  background-color: #1DB954;
+  /* Spotify Green */
+  color: #000000;
+}
+
+.chat-input {
+  display: flex;
+  padding: 0.5rem;
+  border-top: 1px solid #282828;
+  background-color: #121212;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  background-color: #1e1e1e;
+  border: 1px solid #282828;
+  border-radius: 4px;
+  color: #ffffff;
+}
+
+.chat-input input::placeholder {
+  color: #b3b3b3;
+}
+
+.chat-input button {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #1DB954;
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-input button:hover {
+  background-color: #1ed760;
+}.chat-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 2rem auto;
+  border: 1px solid #282828;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  background: #181818;
+  font-family: sans-serif;
+  color: #ffffff;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.chat-message {
+  margin-bottom: 10px;
+}
+
+.chat-message.user {
+  text-align: right;
+}
+
+.chat-message.bot {
+  text-align: left;
+}
+
+.bubble {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  background-color: #282828;
+  /* Bot bubble */
+  max-width: 80%;
+  word-wrap: break-word;
+  white-space: pre-line;
+  color: #ffffff;
+}
+
+.chat-message.user .bubble {
+  background-color: #1DB954;
+  /* Spotify Green */
+  color: #000000;
+}
+
+.chat-input {
+  display: flex;
+  padding: 0.5rem;
+  border-top: 1px solid #282828;
+  background-color: #121212;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  background-color: #1e1e1e;
+  border: 1px solid #282828;
+  border-radius: 4px;
+  color: #ffffff;
+}
+
+.chat-input input::placeholder {
+  color: #b3b3b3;
+}
+
+.chat-input button {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #1DB954;
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-input button:hover {
+  background-color: #1ed760;
+}

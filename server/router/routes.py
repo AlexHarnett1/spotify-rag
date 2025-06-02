@@ -1,11 +1,18 @@
 from flask import Blueprint, request, jsonify
+from server.rag.rag import ask_user_question
 
 routes = Blueprint("routes", __name__)
 
-@routes.route("/ping", methods=["GET"])
+@routes.route("/api/ping", methods=["GET"])
 def ping():
+    print('PINGING')
     return jsonify({"message": "pong"})
 
-@routes.route("/chat", methods=["POST"])
+@routes.route("/api/chat", methods=["POST"])
 def chat():
-    return 'HELLO'
+    data = request.get_json()
+    user_message = data["userMessage"]
+    print('User message: ', user_message)
+    
+    reply = ask_user_question(user_message)
+    return jsonify({"message": reply})

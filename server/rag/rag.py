@@ -49,24 +49,20 @@ def prompt_open_ai(data, question):
     return response.choices[0].message.content
 
 
-def ask_user_question():
+def ask_user_question(user_input):  
+    response = openai.responses.create(
+        model="gpt-4.1",
+        input=[{"role": "user", "content": user_input}],
+        tools=tools
+    )
+    
+    data = call_agent_function(response)
+    if(data == None):
+        print("Couldn't find a function that matched your question.")
+        return "Sorry I couldn't find that. Try asking another question"
 
-    while True:
-        user_input = input("Ask a question about your spotify data: ")
-        if(user_input == "exit"):
-            return
-        
-        response = openai.responses.create(
-            model="gpt-4.1",
-            input=[{"role": "user", "content": user_input}],
-            tools=tools
-        )
-        
-        data = call_agent_function(response)
-        if(data == None):
-            print("Couldn't find a function that matched your question.")
-            continue
+    open_ai_reply = prompt_open_ai(data, user_input)
 
-        
-        print("Botify: ", prompt_open_ai(data, user_input))
-        print('-' * 75)
+    print("Botify: ", open_ai_reply)
+    print('-' * 75)
+    return open_ai_reply
