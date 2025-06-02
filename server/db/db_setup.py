@@ -29,6 +29,7 @@ TABLE_NAME = 'songs_played'
 EXCLUDED_FIELDS = {
     "episode_name",
     "episode_show_name",
+    "spotify_episode_uri"
     "audiobook_title",
     "audiobook_uri",
     "audiobook_chapter_uri",

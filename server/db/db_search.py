@@ -68,7 +68,6 @@ def get_top_artists(limit=10, timestamp = '2010-04-15T13:45:00Z'):
         print(f"Error searching top artists: {e}")
         raise e 
     
-
 def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
     """Return the most played tracks."""
     try:
@@ -84,6 +83,7 @@ def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
         cursor.execute(
             """
             SELECT
+                spotify_track_uri AS uri,
                 master_metadata_track_name AS track,
                 master_metadata_album_artist_name AS artist,
                 SUM(ms_played) AS total_ms_played
@@ -91,7 +91,10 @@ def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
             WHERE 
                 ts::timestamp >= %s AND
                 master_metadata_track_name IS NOT NULL
-            GROUP BY master_metadata_track_name, master_metadata_album_artist_name
+            GROUP BY 
+                spotify_track_uri,
+                master_metadata_track_name,
+                master_metadata_album_artist_name
             ORDER BY total_ms_played DESC
             LIMIT %s;
             """,
@@ -104,3 +107,39 @@ def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
     except Exception as e:
         print(f"Error fetching top tracks: {e}")
         raise e
+    
+# def get_track_plays(track_name="", timestamp = '2010-04-15T13:45:00Z'):
+#     """Return the how many times the tracks been played."""
+#     try:
+#         conn = psycopg2.connect(**DB_CONFIG)
+#         cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+#         if not timestamp_valid:
+#             timestamp = '2010-04-15T13:45:00Z'
+
+
+#         vprint(f"Getting plays of {track_name} since {timestamp}")
+
+#         cursor.execute(
+#             """
+#             SELECT
+#                 master_metadata_track_name AS track,
+#                 master_metadata_album_artist_name AS artist,
+#                 SUM(ms_played) AS total_ms_played
+#             FROM songs_played
+#             WHERE 
+#                 ts::timestamp >= %s AND
+#                 master_metadata_track_name IS NOT NULL
+#             GROUP BY master_metadata_track_name, master_metadata_album_artist_name
+#             ORDER BY total_ms_played DESC
+#             LIMIT %s;
+#             """,
+#             (timestamp, track_name)
+#         )
+#         results = cursor.fetchall()
+#         conn.close()
+#         return results
+
+#     except Exception as e:
+#         print(f"Error fetching top tracks: {e}")
+#         raise e
