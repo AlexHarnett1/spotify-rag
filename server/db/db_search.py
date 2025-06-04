@@ -29,117 +29,96 @@ def timestamp_valid(timestamp):
     except ValueError:
         return False
 
-
-def get_top_artists(limit=10, timestamp = '2010-04-15T13:45:00Z'):
-    """Search for top artists in the database."""
+def send_sql_query(query, params):
     try:
         # Connect to the database
         conn = psycopg2.connect(**DB_CONFIG)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        if not timestamp_valid:
-            timestamp = '2010-04-15T13:45:00Z'
-
-        vprint(f"Getting {limit} artists since {timestamp}")
         # Execute the query
-        cursor.execute(
-            """
-            SELECT
-                master_metadata_album_artist_name AS artist,
-                SUM(ms_played) AS total_ms_played
-            FROM songs_played
-            WHERE 
-                ts::timestamp >= %s AND
-                master_metadata_album_artist_name IS NOT NULL
-            GROUP BY master_metadata_album_artist_name
-            ORDER BY total_ms_played DESC
-            LIMIT %s;
-            """,
-            (timestamp, limit)
-        )
-        
-        # Fetch and return the results
+        cursor.execute(query, params)
         results = cursor.fetchall()
         conn.close()
-
+    
         return results
-
+    
     except Exception as e:
-        print(f"Error searching top artists: {e}")
+        print(f"Error searching query: {e}")
         raise e 
+
+def get_top_artists(limit=10, timestamp = '2010-04-15T13:45:00Z'):
+    """Search for top artists in the database."""
+    if not timestamp_valid:
+        timestamp = '2010-04-15T13:45:00Z'
+
+    vprint(f"Getting {limit} artists since {timestamp}")
+    # Execute the query
+    return send_sql_query(
+        """
+        SELECT
+            master_metadata_album_artist_name AS artist,
+            SUM(ms_played) AS total_ms_played
+        FROM songs_played
+        WHERE 
+            ts::timestamp >= %s AND
+            master_metadata_album_artist_name IS NOT NULL
+        GROUP BY master_metadata_album_artist_name
+        ORDER BY total_ms_played DESC
+        LIMIT %s;
+        """,
+        (timestamp, limit)
+    )
     
 def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
     """Return the most played tracks."""
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-
-        if not timestamp_valid:
-            timestamp = '2010-04-15T13:45:00Z'
+    if not timestamp_valid:
+        timestamp = '2010-04-15T13:45:00Z'
 
 
-        vprint(f"Getting {limit} songs since {timestamp}")
+    vprint(f"Getting {limit} songs since {timestamp}")
 
-        cursor.execute(
-            """
-            SELECT
-                spotify_track_uri AS uri,
-                master_metadata_track_name AS track,
-                master_metadata_album_artist_name AS artist,
-                SUM(ms_played) AS total_ms_played
-            FROM songs_played
-            WHERE 
-                ts::timestamp >= %s AND
-                master_metadata_track_name IS NOT NULL
-            GROUP BY 
-                spotify_track_uri,
-                master_metadata_track_name,
-                master_metadata_album_artist_name
-            ORDER BY total_ms_played DESC
-            LIMIT %s;
-            """,
-            (timestamp, limit)
-        )
-        results = cursor.fetchall()
-        conn.close()
-        return results
+    return send_sql_query(
+        """
+        SELECT
+            spotify_track_uri AS uri,
+            master_metadata_track_name AS track,
+            master_metadata_album_artist_name AS artist,
+            SUM(ms_played) AS total_ms_played
+        FROM songs_played
+        WHERE 
+            ts::timestamp >= %s AND
+            master_metadata_track_name IS NOT NULL
+        GROUP BY 
+            spotify_track_uri,
+            master_metadata_track_name,
+            master_metadata_album_artist_name
+        ORDER BY total_ms_played DESC
+        LIMIT %s;
+        """,
+        (timestamp, limit)
+    )
 
-    except Exception as e:
-        print(f"Error fetching top tracks: {e}")
-        raise e
-    
-# def get_track_plays(track_name="", timestamp = '2010-04-15T13:45:00Z'):
-#     """Return the how many times the tracks been played."""
-#     try:
-#         conn = psycopg2.connect(**DB_CONFIG)
-#         cursor = conn.cursor(cursor_factory=RealDictCursor)
+def get_track_plays(track_name="", timestamp = '2010-04-15T13:45:00Z'):
+    """Return how long the tracks been listened to/
+    how many times the tracks been played."""
 
-#         if not timestamp_valid:
-#             timestamp = '2010-04-15T13:45:00Z'
+    if not timestamp_valid:
+        timestamp = '2010-04-15T13:45:00Z'
 
+    vprint(f"Getting plays of '{track_name}' since {timestamp}")
 
-#         vprint(f"Getting plays of {track_name} since {timestamp}")
-
-#         cursor.execute(
-#             """
-#             SELECT
-#                 master_metadata_track_name AS track,
-#                 master_metadata_album_artist_name AS artist,
-#                 SUM(ms_played) AS total_ms_played
-#             FROM songs_played
-#             WHERE 
-#                 ts::timestamp >= %s AND
-#                 master_metadata_track_name IS NOT NULL
-#             GROUP BY master_metadata_track_name, master_metadata_album_artist_name
-#             ORDER BY total_ms_played DESC
-#             LIMIT %s;
-#             """,
-#             (timestamp, track_name)
-#         )
-#         results = cursor.fetchall()
-#         conn.close()
-#         return results
-
-#     except Exception as e:
-#         print(f"Error fetching top tracks: {e}")
-#         raise e
+    return send_sql_query(
+        """
+        SELECT
+            master_metadata_track_name AS track,
+            master_metadata_album_artist_name AS artist,
+            SUM(ms_played) AS total_ms_played
+        FROM songs_played
+        WHERE 
+            ts::timestamp >= %s AND
+            master_metadata_track_name = %s AND
+            master_metadata_track_name IS NOT NULL
+        GROUP BY master_metadata_track_name, master_metadata_album_artist_name;
+        """,
+        (timestamp, track_name)
+    )
