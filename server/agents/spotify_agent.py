@@ -7,7 +7,8 @@ now = datetime.now()
 function_registry = {
     "get_top_artists": get_top_artists,
     "get_top_tracks": get_top_tracks,
-    "get_track_plays": get_track_plays
+    "get_track_plays": get_track_plays,
+    "get_track_recommendations": get_top_tracks
 }
 
 tools = [
@@ -59,6 +60,25 @@ tools = [
             "track_name": {
                 "type": "string",
                 "description": "Name of the track they want time played for."
+            },
+            "timestamp": {
+                "type": "string",
+                "description": "How long ago they'd like the data to go back. Return in timestamp form. Ex: 2010-04-15T13:45:00Z"
+            }
+        },
+        "additionalProperties": False
+    }
+},
+{
+    "type": "function",
+    "name": "get_track_recommendations",
+    "description": f"Get track/song recommendations based on a given number of top tracks. Today is {now}.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "limit": {
+                "type": "integer",
+                "description": "Number of tracks e.g. 25, 50"
             },
             "timestamp": {
                 "type": "string",

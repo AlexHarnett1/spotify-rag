@@ -20,15 +20,38 @@ def call_agent_function(response):
     # Extract the function name and arguments from the user query.
     function_name = func_call.name
     arguments = json.loads(func_call.arguments)
-
+    
     # Get the correct function to call from the registry
     func_to_call = function_registry.get(function_name)
+
+    if function_name == "get_track_recommendations":
+        return get_recommendations(func_to_call, arguments)
 
     if func_to_call:
         return func_to_call(**arguments)  # <- Dynamic function call
     else:
         print(f"Unknown function: {function_name}")
         return None
+
+def get_recommendations(func_to_call, arguments):
+    data = func_to_call(**arguments)
+    
+    song_recommendations = []
+    previousMessages = []
+    while len(song_recommendations) < 10:
+        prompt = f"""You are in charge finding song recommendations based on a user's top songs: {data}
+                    Make sure you format your response in an ARRAY
+                """
+        previousMessages.append({"role": "user", "content": prompt})
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=previousMessages,
+            temperature=1)
+        print(response.choices[0].message["content"])
+        song_recommendations = [11,11,11,11,11,11,11,11,11,11,11,11]
+
+
+
 
 def prompt_open_ai(data, question):
     context = f"This is the data retreived for the user's query: {data}"
@@ -47,7 +70,6 @@ def prompt_open_ai(data, question):
     )
 
     return response.choices[0].message.content
-
 
 def ask_user_question(user_input):  
     response = openai.responses.create(
