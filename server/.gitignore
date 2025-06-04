@@ -1,0 +1,4 @@
+.env
+streaming_history/*
+.DS_Store
+**/__pycache__/
