@@ -4,6 +4,8 @@ import json
 from dotenv import load_dotenv
 from server.agents.spotify_agent import tools, function_registry
 from server.logger.logger import vprint, bot_print, human_print
+from server.db.db_search import find_unplayed_tracks
+
 
 load_dotenv()
 
@@ -32,23 +34,45 @@ def get_recommendations(func_to_call, arguments):
     data = func_to_call(**arguments)
     human_print(f"Data fed to get recommendations bot: {data}")
     song_recommendations = []
-    previousMessages = []
+    previousMessages = [{
+        "role": "system",
+        "content": """You are a strict assistant that only generates track/artist combination that are real.
+            Do not hallucinate or add any extra information."""
+    }]
     iterations = 0
     while len(song_recommendations) < 10 and iterations < 10:
         iterations += 1
         prompt = f"""You are in charge finding at least 10 song recommendations based on a user's top songs: {data}
-                    Make sure you format your response in an ARRAY
-                """
+            Return your answer as a valid **JSON array** of tuples including (track name, artist name) — nothing else. 
+            Example format: [["Track Name", "Artist Name"], ["another track name", "another artist name"]]
+            """
+        
         previousMessages.append({"role": "user", "content": prompt})
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=previousMessages,
-            temperature=1)
+            temperature=.1)
+        
+        response_content = response.choices[0].message.content
+        # Add error handling if this does not work...
+        try:
+            track_artist_pairs = json.loads(response_content)
+            if not isinstance(track_artist_pairs, list):
+                raise ValueError("Expected a JSON array (list) as response.")
+        except json.JSONDecodeError as e:
+            print("JSON decoding failed:", e)
+            print("Raw response content:", repr(response_content))
+            track_artist_pairs = []  # fallback or trigger retry
+        except Exception as e:
+            print("Unexpected error:", e)
+            track_artist_pairs = []
+
+        song_recommendations.extend(find_unplayed_tracks(track_artist_pairs))
+        vprint(f'Current Song Recommendation List: {song_recommendations}')
         
         
-        song_recommendations = response.choices[0].message.content
-    bot_print(f"song_recommendations returned from recommendations bot: {song_recommendations}")
-    return song_recommendations
+    bot_print(f"song_recommendations returned from recommendations bot: {response_content}")
+    return response_content
 
 
 

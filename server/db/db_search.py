@@ -122,3 +122,37 @@ def get_track_plays(track_name="", timestamp = '2010-04-15T13:45:00Z'):
         """,
         (timestamp, track_name)
     )
+
+
+def find_unplayed_tracks(track_artist_pairs):
+    """Find all tracks that haven't been played from the given list"""
+    MAX_PLAY_COUNT = 10
+    unplayed_track_artist_pairs = []
+
+    # Connect to the database
+    conn = psycopg2.connect(**DB_CONFIG)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    for track_artist_pair in track_artist_pairs:
+        track_name = f"%{track_artist_pair[0]}%"
+        artist_name = f"%{track_artist_pair[1]}%"
+
+        vprint(track_artist_pair)
+        cursor.execute("""
+            SELECT COUNT(*) as play_count
+            FROM songs_played
+            WHERE
+                (TRIM(master_metadata_track_name) ILIKE TRIM(%s) OR TRIM(%s) ILIKE TRIM(master_metadata_track_name)) AND
+                (TRIM(master_metadata_album_artist_name) ILIKE TRIM(%s) OR TRIM(%s) ILIKE TRIM(master_metadata_album_artist_name));
+            """, (track_name, track_name, artist_name, artist_name))
+        results = cursor.fetchall()
+        
+        if(results[0]['play_count'] < MAX_PLAY_COUNT):
+            vprint("track count: ", results[0]['play_count'])
+            unplayed_track_artist_pairs.append(track_artist_pair)
+        vprint("track count: ", results)
+
+    conn.close()
+    
+    return unplayed_track_artist_pairs
+
