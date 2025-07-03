@@ -4,6 +4,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from server.logger.logger import vprint
+from server.tracing.tracing_utils import tracer
 
 # Time start AND finish
 # To create recommendations, I could create vectorDB of "song - artist" 
@@ -46,6 +47,7 @@ def send_sql_query(query, params):
         print(f"Error searching query: {e}")
         raise e 
 
+@tracer.tool
 def get_top_artists(limit=10, timestamp = '2010-04-15T13:45:00Z'):
     """Search for top artists in the database."""
     if not timestamp_valid:
@@ -68,7 +70,8 @@ def get_top_artists(limit=10, timestamp = '2010-04-15T13:45:00Z'):
         """,
         (timestamp, limit)
     )
-    
+
+@tracer.tool
 def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
     """Return the most played tracks."""
     if not timestamp_valid:
@@ -98,6 +101,7 @@ def get_top_tracks(limit=25, timestamp = '2010-04-15T13:45:00Z'):
         (timestamp, limit)
     )
 
+@tracer.tool
 def get_track_plays(track_name="", timestamp = '2010-04-15T13:45:00Z'):
     """Return how long the tracks been listened to/
     how many times the tracks been played."""
@@ -123,7 +127,7 @@ def get_track_plays(track_name="", timestamp = '2010-04-15T13:45:00Z'):
         (timestamp, track_name)
     )
 
-
+@tracer.tool
 def find_unplayed_tracks(track_artist_pairs):
     """Find all tracks that haven't been played from the given list"""
     MAX_PLAY_COUNT = 10

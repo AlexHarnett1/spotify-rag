@@ -9,7 +9,7 @@ CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
 app.register_blueprint(routes)  # Register router
 
 if __name__ ==  "__main__":
-    app.run(port=3000)
+    app.run(port=3001)
 
 
 

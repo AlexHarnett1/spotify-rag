@@ -5,12 +5,14 @@ from dotenv import load_dotenv
 from server.agents.spotify_agent import tools, function_registry
 from server.logger.logger import vprint, bot_print, human_print
 from server.db.db_search import find_unplayed_tracks
-
+from server.tracing.tracing_utils import tracer
 
 load_dotenv()
 
 # Configure OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
 
 def call_agent_function(function_name, func_to_call, arguments):
 
@@ -30,6 +32,7 @@ def get_agent_function(response):
     
     return func_call
 
+@tracer.chain
 def get_recommendations(func_to_call, arguments):
     data = func_to_call(**arguments)
     human_print(f"Data fed to get recommendations bot: {data}")
@@ -40,20 +43,17 @@ def get_recommendations(func_to_call, arguments):
             Do not hallucinate or add any extra information."""
     }]
     iterations = 0
-    while len(song_recommendations) < 10 and iterations < 10:
+    while len(song_recommendations) < 10 and iterations < 5:
         iterations += 1
         prompt = f"""You are in charge finding at least 10 song recommendations based on a user's top songs: {data}
             Return your answer as a valid **JSON array** of tuples including (track name, artist name) — nothing else. 
+            Do not repeat recommendations you've already issued.
             Example format: [["Track Name", "Artist Name"], ["another track name", "another artist name"]]
             """
         
         previousMessages.append({"role": "user", "content": prompt})
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=previousMessages,
-            temperature=.1)
-        
-        response_content = response.choices[0].message.content
+
+        response_content = invoke_llm_recommendations(previousMessages)
         # Add error handling if this does not work...
         try:
             track_artist_pairs = json.loads(response_content)
@@ -71,9 +71,8 @@ def get_recommendations(func_to_call, arguments):
         vprint(f'Current Song Recommendation List: {song_recommendations}')
         
         
-    bot_print(f"song_recommendations returned from recommendations bot: {response_content}")
-    return response_content
-
+    bot_print(f"song_recommendations returned from recommendations bot: {song_recommendations}")
+    return song_recommendations
 
 
 
@@ -84,39 +83,50 @@ def prompt_open_ai_generic(data, question):
     Generate a response to their question which was: {question}
     """
 
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are an expert in music."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=1
-    )
-
-    return response.choices[0].message.content
+    messages = [{"role": "system", "content": "You are an expert in music."}, {"role": "user", "content": prompt}]
+    return invoke_llm_final_response(messages)
 
 def prompt_open_ai_recommendations(recommendations, question):
     prompt = f"""Based on the users original question: {question}
     Please give them these recommendations {recommendations}
     Make sure to display this track name, not the track id    
     """
+    messages = [{"role": "system", "content": "You are an expert in music."}, {"role": "user", "content": prompt}]
+    return invoke_llm_final_response(messages)
 
+@tracer.llm
+def invoke_llm_recommendations(messages):
+    response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            temperature=.1)
+        
+    return response.choices[0].message.content
+
+@tracer.llm
+def invoke_llm_final_response(messages):
     response = openai.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
+        messages=messages,
         temperature=1
     )
 
     return response.choices[0].message.content
 
-def ask_user_question(user_input):  
+@tracer.llm
+def invoke_llm_with_tools(messages):
     response = openai.responses.create(
         model="gpt-4.1",
-        input=[{"role": "user", "content": user_input}],
+        input=messages,
         tools=tools
     )
+    return response
+
+@tracer.chain
+def ask_user_question(user_input):
+
+    messages = [{"role": "user", "content": user_input}]
+    response = invoke_llm_with_tools(messages)
 
     func_call = get_agent_function(response)
     # Extract the function name and arguments from the user query.
